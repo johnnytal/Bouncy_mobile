@@ -886,10 +886,12 @@ function mcHammer(){
     
     mc.on("swipedown", function(ev) {
         if(!ev.handled){
-            ball.body.gravity.y += 40;
             ball.body.angularVelocity *= 0.8;
             
+            ball.body.gravity.y += 40;
             ball.body.gravity.x = 0;
+            
+            ball.body.velocity.y *= 2;
             ball.body.velocity.x /= 2;
             
             if (ball.angle > 2) ball.body.angularVelocity = -ANG_VELOCITY * 1.25;
