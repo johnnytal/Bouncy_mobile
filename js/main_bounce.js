@@ -1,359 +1,465 @@
-WebFontConfig = {google: {families: ['Fontdiner Swanky']}};
+var game_main = function(game){
 
-getHighScore();
-getAnyoneScore();
-
-var score, lives, level, timeBonus, reason, countJetSeconds, endLevelStuff, name;
-var thisX,newX,oldX, jumpDistance, notHidden, logoImg1, logoImg2, chooseLevelImg;
-var musics, music1, music2, track;
-
-var screenNames = ['Welcome!','Ups & downs','Break the wall!','Ground control to Major Bouncy','Hot potato'
-,'Run Bouncy, Run!','Icarus','A most elusive fish...','Eclectic bounce','The maze of doom, Mu-hahaha!'];
-
-var objects = [];
-var levelColorImg = [];
-var levelLockImg = [];
-var chooseLevelText = [];
-var allSfx = [];
-var ballChosen = 'mr';
-
-var WIDTH = 800;
-var HEIGHT = 720;
-var ROOM_WIDTH = 2400;
-
-var INIT_BALL_X = 50;
-var INIT_BALL_Y = 80;
-
-var BALL_GRAV_X = 200;
-var BALL_GRAV_Y = 150;
-var BALL_BOUNCE_Y = 0.85;
-
-var ANG_VELOCITY = 60;
-
-var gameOn = false;
-var gameStarted = false;
-var KillInProgress = false;
-var notHidden = true;
-var contPoint = 0;
-var starsInLevel = 0;
-var starsBonus = 0;
-
-var jetSeconds = 0;
-var jetOpened = false;
-var jetSfxOn = false;
-
-var fishTimer = 0;
-var anotherFishTimer = 0;
-var movingFish = true;
-
-var soundOn = true;
-
-var helicopterTimer = 0;
-
-var timeFromLastCollision = 0;
-var greatJump = false;
-var jumpTextTimer = 0;
-var biggestJump = 0;
-var longestFlight = 0;
-var bestUserLevel = 1;
-
-var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.CANVAS, 'game', {preload: preload, create: create, update: update}, true);
-
-var themeMusic = new buzz.sound("sounds/theme_music.wav", {
-    preload: true,
-    loop: true
-});
-var music1 = new buzz.sound("sounds/music1.wav", {
-    preload: true,
-    loop: true
-});
-var music2 = new buzz.sound("sounds/music2.wav", {
-    preload: true,
-    loop: true
-});
-var musics = [music1, music2, themeMusic];
-
-function preload(){  
-    game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
+    /*getHighScore();
+    getAnyoneScore();
+    */
     
-    game.load.image('room', 'images/bouncey/newBG2.png');
-    game.load.image('choose', 'images/bouncey/choose.png');
-    game.load.image('choose2', 'images/bouncey/choose2.png');
-    game.load.image('color1', 'images/bouncey/1.png');
-    game.load.image('color2', 'images/bouncey/2.png');
-    game.load.image('color4', 'images/bouncey/4.png');
-    game.load.image('enemy', 'images/bouncey/bug.png');
-    game.load.image('hole', 'images/bouncey/hole.png');
-    game.load.image('fish', 'images/bouncey/fish2.png');
-    game.load.image('sea', 'images/bouncey/sea.png');
-    game.load.image('jetPack', 'images/bouncey/jetPack.png');
-    game.load.image('firstAid', 'images/bouncey/firstaid.png');
-    game.load.image('coin', 'images/bouncey/star.png');
-    game.load.image('logo', 'images/bouncey/newBG.jpg');
-    game.load.image('levelBg', 'images/bouncey/levelBg.png');
-    game.load.image('helicopter', 'images/bouncey/helicopter.png');
-    game.load.image('cloud1', 'images/bouncey/cloud1.png');
-    game.load.image('cloud2', 'images/bouncey/cloud2.png');
-    game.load.image('tree', 'images/bouncey/tree.png');
-    game.load.image('tree2', 'images/bouncey/tree2.png');
-    game.load.image('tree3', 'images/bouncey/tree3.png');
-    game.load.image('tree4', 'images/bouncey/tree4.png');
-    game.load.image('lock', 'images/bouncey/lock.png');
-
-    game.load.spritesheet('ball', 'images/bouncey/creature.png', 47, 44);
-    game.load.spritesheet('miss_ball', 'images/bouncey/miss_creature.png', 47, 44);
-    game.load.spritesheet('spring', 'images/bouncey/spring_c.png', 45, 39);
-    game.load.spritesheet('splash', 'images/bouncey/splash.png', 314, 137, 6);
-    game.load.spritesheet('color3', 'images/bouncey/3.png', 72, 72, 3);
-    game.load.spritesheet('contBtn', 'images/bouncey/continue.png', 45, 46, 2);
-    game.load.spritesheet('debris', 'images/bouncey/debris.png', 40, 17, 4);
-    game.load.spritesheet('debris_b', 'images/bouncey/debris_b.png', 40, 30, 4);
-    game.load.spritesheet('debris_p', 'images/bouncey/debris_p.png', 40, 30, 4);
-    game.load.spritesheet('speaker', 'images/bouncey/speaker.png',30,26,2);
+    var score, lives, level, timeBonus, reason, countJetSeconds, endLevelStuff, name;
+    var thisX,newX,oldX, jumpDistance, notHidden, logoImg1, logoImg2, chooseLevelImg, track;
     
-    game.load.audio('sfxSplash', 'sounds/splash2.wav');
-    game.load.audio('sfxStar', 'sounds/star.wav');
-    game.load.audio('sfxSucked', 'sounds/sucked.wav');
-    game.load.audio('sfxLife', 'sounds/life.wav');
-    game.load.audio('sfxCntBtn', 'sounds/cnt_btn.wav');
-    game.load.audio('sfxBadTile', 'sounds/bad_tile.wav');
-    game.load.audio('sfxJet', 'sounds/jet.wav');
-    game.load.audio('sfxSpring', 'sounds/spring.wav');
-    game.load.audio('sfxHit', 'sounds/hit.wav');
-    game.load.audio('sfxBounce', 'sounds/bounce.wav');
-    game.load.audio('sfxJetTaken', 'sounds/jetTaken.wav');  
-    game.load.audio('sfxScore', 'sounds/score.wav');
-    game.load.audio('sfxNew_life', 'sounds/new_life.wav');
-}
-
-function create(){
-    if (game.load.hasLoaded) loadComplete('Game resources');
-
-    // init vars
-    score = 0;
-    lives = 3;
-    level = 0;
-    timeBonus = 1000;
-  
-    // create room
-    bg = game.add.tileSprite(0, 0, ROOM_WIDTH, HEIGHT, 'room');
-    bg.fixedToCamera = true;
-
-    game.world.setBounds(0, 0, ROOM_WIDTH, HEIGHT);
-    game.physics.startSystem(Phaser.Physics.P2JS);
-
-    floor = game.add.sprite(0, HEIGHT-85, null);
-    game.physics.enable(floor, Phaser.Physics.ARCADE);
-    floor.body.setSize(ROOM_WIDTH, 85);
-    floor.body.immovable = true;
+     screenNames = ['Welcome!','Ups & downs','Break the wall!','Ground control to Major Bouncy','Hot potato'
+    ,'Run Bouncy, Run!','Icarus','A most elusive fish...','Eclectic bounce','The maze of doom, Mu-hahaha!'];
     
-    ceiling = game.add.sprite(0, 0, null);
-    game.physics.enable(ceiling, Phaser.Physics.ARCADE);
-    ceiling.body.setSize(ROOM_WIDTH, 50);
-    ceiling.body.immovable = true;
-    
-    // create texts
-    scoreText = game.add.text(360, 10, '' + score, { font: "22px Fontdiner Swanky", fill: "#a65200", align:'left'});
-    scoreText.fixedToCamera = true;
-    scoreText.anchor.x = 0.5;
-   
-    livesText = game.add.text(140, 10, 'X ' + lives, { font: "24px Fontdiner Swanky", fill: "beige"});
-    livesText.fixedToCamera = true;
+    objects = [];
+    levelColorImg = [];
+    levelLockImg = [];
+    chooseLevelText = [];
+    allSfx = [];
+    ballChosen = 'mr';
 
-    levelText = game.add.text(34, 8, '' + (level+1), { font: "23px Fontdiner Swanky", fill: "grey"});
-    levelText.fixedToCamera = true;
-    levelText.anchor.x = 0.5;
+    INIT_BALL_X = 50;
+    INIT_BALL_Y = 80;
     
-    timeBonusText = game.add.text(555, 10, '' + timeBonus, { font: "21px Fontdiner Swanky", fill: "#d66a00"});
-    timeBonusText.fixedToCamera = true;
-    timeBonusText.anchor.x = 0.5;  
+    BALL_GRAV_X = 100;
+    BALL_GRAV_Y = 150;
+    BALL_BOUNCE_Y = 0.85;
     
-    jetSecsText = game.add.text(715, 15,''+ jetSeconds, { font: "18px arial", fill: "darkred"});
-    jetSecsText.fixedToCamera = true;
-    jetSecsText.anchor.x = 0.5;
+    ANG_VELOCITY = 60;
+    
+    gameOn = false;
+    gameStarted = false;
+    KillInProgress = false;
+    notHidden = true;
+    contPoint = 0;
+    starsInLevel = 0;
+    starsBonus = 0;
+    
+    jetSeconds = 0;
+    jetOpened = false;
+    jetSfxOn = false;
+    
+    fishTimer = 0;
+    anotherFishTimer = 0;
+    movingFish = true;
+    
+    soundOn = true;
+    
+    helicopterTimer = 0;
+    
+    timeFromLastCollision = 0;
+    greatJump = false;
+    jumpTextTimer = 0;
+    biggestJump = 0;
+    longestFlight = 0;
+    bestUserLevel = 1;
+    
+    font = 'Fontdiner Swanky';
+};
 
-    // groups
+game_main.prototype = {
+        
+    create: function(){
+        if (game.load.hasLoaded) loadComplete('Game resources');
     
-    trees = game.add.group();
+        // init vars
+        score = 0;
+        lives = 3;
+        level = 0;
+        timeBonus = 1000;
+      
+        // create room
+        bg = game.add.tileSprite(0, 0, ROOM_WIDTH, HEIGHT, 'room');
+        bg.fixedToCamera = true;
+    
+        game.world.setBounds(0, 0, ROOM_WIDTH, HEIGHT);
+        game.physics.startSystem(Phaser.Physics.P2JS);
+    
+        floor = game.add.sprite(0, HEIGHT-85, null);
+        game.physics.enable(floor, Phaser.Physics.ARCADE);
+        floor.body.setSize(ROOM_WIDTH, 85);
+        floor.body.immovable = true;
+        
+        ceiling = game.add.sprite(0, 0, null);
+        game.physics.enable(ceiling, Phaser.Physics.ARCADE);
+        ceiling.body.setSize(ROOM_WIDTH, 50);
+        ceiling.body.immovable = true;
+        
+        // create texts
+        scoreText = game.add.text(360, 10, '' + score, { font: "22px " + font, fill: "#a65200", align:'left'});
+        scoreText.fixedToCamera = true;
+        scoreText.anchor.x = 0.5;
+       
+        livesText = game.add.text(140, 10, 'X ' + lives, { font: "24px "  + font, fill: "beige"});
+        livesText.fixedToCamera = true;
+    
+        levelText = game.add.text(34, 8, '' + (level+1), { font: "23px "  + font, fill: "grey"});
+        levelText.fixedToCamera = true;
+        levelText.anchor.x = 0.5;
+        
+        timeBonusText = game.add.text(555, 10, '' + timeBonus, { font: "21px "  + font, fill: "#d66a00"});
+        timeBonusText.fixedToCamera = true;
+        timeBonusText.anchor.x = 0.5;  
+        
+        jetSecsText = game.add.text(715, 15,''+ jetSeconds, { font: "18px arial", fill: "darkred"});
+        jetSecsText.fixedToCamera = true;
+        jetSecsText.anchor.x = 0.5;
+    
+        // groups
+        
+        trees = game.add.group();
+    
+        colors = game.add.group();
+        colors.enableBody = true;
+        colors.physicsBodyType = Phaser.Physics.ARCADE;
+        
+        colors4 = game.add.group();
+        colors4.enableBody = true;
+        colors4.physicsBodyType = Phaser.Physics.ARCADE;
+    
+        springs = game.add.group();
+        springs.enableBody = true;
+        springs.physicsBodyType = Phaser.Physics.ARCADE;
+        
+        helicopters = game.add.group();
+        helicopters.enableBody = true;
+        helicopters.physicsBodyType = Phaser.Physics.ARCADE;
+    
+        holes = game.add.group();
+        holes.enableBody = true;
+        holes.physicsBodyType = Phaser.Physics.ARCADE;
+    
+        jets = game.add.group();
+        jets.enableBody = true;
+        jets.physicsBodyType = Phaser.Physics.ARCADE;
+    
+        coins = game.add.group();
+    
+        enemies = game.add.group();
+        enemies.enableBody = true;
+        enemies.physicsBodyType = Phaser.Physics.ARCADE;
+        
+        fishes = game.add.group();
+        fishes.enableBody = true;
+        fishes.physicsBodyType = Phaser.Physics.ARCADE;
+    
+        contBtns = game.add.group();
+        contBtns.enableBody = true;
+        contBtns.physicsBodyType = Phaser.Physics.ARCADE;
+    
+        sea = game.add.tileSprite(0, HEIGHT-134, ROOM_WIDTH, 134, 'sea');
+        sea.alpha = 0.9;
+        
+        logo = game.add.image(0,0,'logo');
+    
+        clouds = game.add.group();
+        clouds.enableBody = true;
+        clouds.physicsBodyType = Phaser.Physics.ARCADE;
+        clouds.alpha = 0.6;
+        
+        logoText = game.add.text(230, 165, 'Choose your character:', { font: "28px "  + font, fill: "#002800"});
+        logoText2 = game.add.text(70, 18, 'B O U N C Y !', { font: "35px "  + font, fill: "darkblue"});
+        logoText3 = game.add.text(340, 35, 'The Ball That Bounces Much', { font: "22px "  + font, fill: "#965000"});
+        logoText4 = game.add.text(245, 415, 'Press ENTER to start', { font: "28px "  + font, fill: "#A52A2A"});
+        
+        logoImg1 = game.add.image(315, 300,'ball');
+        logoImg2 = game.add.image(460, 300,'miss_ball');
+        logoImg1.inputEnabled = true;
+        logoImg2.inputEnabled = true;
+        logoImg1.input.useHandCursor = true;
+        logoImg2.input.useHandCursor = true;
+        logoImg1.events.onInputDown.add(chooseBall, this);
+        logoImg2.events.onInputDown.add(chooseBall, this);
+       
+        logoImgText = game.add.text(255, 220,'Mr. Bouncy \n (higher jumps but slower & heavier)', { font: "17px "  + font, fill: "darkblue"});
+        chooseImg = game.add.image(305,290,'choose');
+        
+        storyText = game.add.text(60,380, "Ms. Bouncy was kidnapped by the evil mr. fish! it's up to you to save her!" , { font: "18px "  + font, fill: "#002800"});
 
-    colors = game.add.group();
-    colors.enableBody = true;
-    colors.physicsBodyType = Phaser.Physics.ARCADE;
-    
-    colors4 = game.add.group();
-    colors4.enableBody = true;
-    colors4.physicsBodyType = Phaser.Physics.ARCADE;
-
-    springs = game.add.group();
-    springs.enableBody = true;
-    springs.physicsBodyType = Phaser.Physics.ARCADE;
-    
-    helicopters = game.add.group();
-    helicopters.enableBody = true;
-    helicopters.physicsBodyType = Phaser.Physics.ARCADE;
-
-    holes = game.add.group();
-    holes.enableBody = true;
-    holes.physicsBodyType = Phaser.Physics.ARCADE;
-
-    jets = game.add.group();
-    jets.enableBody = true;
-    jets.physicsBodyType = Phaser.Physics.ARCADE;
-
-    coins = game.add.group();
-
-    enemies = game.add.group();
-    enemies.enableBody = true;
-    enemies.physicsBodyType = Phaser.Physics.ARCADE;
-    
-    fishes = game.add.group();
-    fishes.enableBody = true;
-    fishes.physicsBodyType = Phaser.Physics.ARCADE;
-
-    contBtns = game.add.group();
-    contBtns.enableBody = true;
-    contBtns.physicsBodyType = Phaser.Physics.ARCADE;
-
-    sea = game.add.tileSprite(0, HEIGHT-134, ROOM_WIDTH, 134, 'sea');
-    sea.alpha = 0.9;
-    
-    logo = game.add.image(0,0,'logo');
-
-    clouds = game.add.group();
-    clouds.enableBody = true;
-    clouds.physicsBodyType = Phaser.Physics.ARCADE;
-    clouds.alpha = 0.6;
-    
-    logoText = game.add.text(230, 165, 'Choose your character:', { font: "28px Fontdiner Swanky", fill: "#002800"});
-    logoText2 = game.add.text(70, 18, 'B O U N C Y !', { font: "35px Fontdiner Swanky", fill: "darkblue"});
-    logoText3 = game.add.text(340, 35, 'The Ball That Bounces Much', { font: "22px Fontdiner Swanky", fill: "#965000"});
-    logoText4 = game.add.text(245, 415, 'Press ENTER to start', { font: "28px Fontdiner Swanky", fill: "#A52A2A"});
-    
-    logoImg1 = game.add.image(315, 300,'ball');
-    logoImg2 = game.add.image(460, 300,'miss_ball');
-    logoImg1.inputEnabled = true;
-    logoImg2.inputEnabled = true;
-    logoImg1.input.useHandCursor = true;
-    logoImg2.input.useHandCursor = true;
-    logoImg1.events.onInputDown.add(chooseBall, this);
-    logoImg2.events.onInputDown.add(chooseBall, this);
-   
-    logoImgText = game.add.text(255, 220,'Mr. Bouncy \n (higher jumps but slower & heavier)', { font: "17px Fontdiner Swanky", fill: "darkblue"});
-    chooseImg = game.add.image(305,290,'choose');
-    
-    storyText = game.add.text(60,380, "Ms. Bouncy was kidnapped by the evil mr. fish! it's up to you to save her!" , { font: "18px Fontdiner Swanky", fill: "#002800"});
-    instText1 = game.add.text(235,465, 'MOVE LEFT & RIGHT - left & right arrows', { font: "15px Fontdiner Swanky", fill: "#802A2A"});
-    instText2 = game.add.text(235,500, 'GAIN BOUNCE MOMENTUM - down arrow', { font: "15px Fontdiner Swanky", fill: "#802A2A"});
-    instText3 = game.add.text(295,535, 'TURN ON JETS - up arrow', { font: "15px Fontdiner Swanky", fill: "#802A2A"});
-    instText4 = game.add.text(225,570, 'pause - P   hide sidebars - H   restart level - R', { font: "15px Fontdiner Swanky", fill: "#802A2A"});
-    creditText = game.add.text(10,638, 'C r e a t e d  b y  J o h n n y  T a l ,  2 0 1 5  ©', { font: "11px Fontdiner Swanky", fill: "lightyellow"});
-    creditText2 = game.add.text(10,655, 'j o h n n y t a l 9 @ g m a i l . c o m', { font: "11px Fontdiner Swanky", fill: "lightyellow"});
-    
-    chooseLevelImg = game.add.image(55+((bestUserLevel-1)*70),80,'choose2');
-    
-    setTimeout(function(){
-        if (levelColorImg[0] == undefined){
-            for (n=0; n<10; n++){
-                levelColorImg[n] = game.add.image(55+(n*70),80,'color1');
-                levelColorImg[n].alpha = round((n/10)+0.1,1);
-                levelColorImg[n].inputEnabled = true;
-                levelColorImg[n].events.onInputDown.add(chooseLevel, this);
-                levelColorImg[n].input.useHandCursor = true;
-                
-                if (n > bestUserLevel-1) levelLockImg[n] = game.add.image(75+(n*70),100,'lock');
-                chooseLevelText[n] = game.add.text(70+(n*70),90,'Level \n    ' + (n+1),  { font: "14px Fontdiner Swanky", fill: "lightyellow"});
+        chooseLevelImg = game.add.image(55+((bestUserLevel-1)*70),80,'choose2');
+        
+        setTimeout(function(){
+            if (levelColorImg[0] == undefined){
+                for (n=0; n<10; n++){
+                    levelColorImg[n] = game.add.image(55+(n*70),80,'color1');
+                    levelColorImg[n].alpha = round((n/10)+0.1,1);
+                    levelColorImg[n].inputEnabled = true;
+                    levelColorImg[n].events.onInputDown.add(chooseLevel, this);
+                    levelColorImg[n].input.useHandCursor = true;
+                    
+                    if (n > bestUserLevel-1) levelLockImg[n] = game.add.image(75+(n*70),100,'lock');
+                    chooseLevelText[n] = game.add.text(70+(n*70),90,'Level \n    ' + (n+1),  { font: "14px "  + font, fill: "lightyellow"});
+                }
             }
-        }
-        chooseLevelImg.x = 55+((bestUserLevel-1)*70);
-        loadComplete("User's level");
-    },1200);
-
-    pauseText = game.add.text(335, 50, 'Game Paused', { font: "22px Fontdiner Swanky", fill: "yellow"});
-    pauseText.fixedToCamera = true;
-    pauseText.visible = false;
+            chooseLevelImg.x = 55+((bestUserLevel-1)*70);
+            loadComplete("User's level");
+        },1200);
     
-    logoStuff = [logo, logoText, logoText2, logoText3, logoText4, instText1, instText2, storyText,
-    instText3, instText4, logoImg1, logoImgText, logoImg2, chooseImg, chooseLevelImg, creditText, creditText2];
+        pauseText = game.add.text(335, 50, 'Game Paused', { font: "22px "  + font, fill: "yellow"});
+        pauseText.fixedToCamera = true;
+        pauseText.visible = false;
+        
+        logoStuff = [logo, logoText, logoText2, logoText3, logoText4, storyText, logoImg1,
+            logoImgText, logoImg2, chooseImg, chooseLevelImg];
+        
+        createClouds();
+        
+        modal = new gameModal(game);
+        
+        objects = [colors, colors4, enemies, holes, coins, contBtns, jets, fishes, springs, helicopters, clouds, trees];
+        
+        speaker = game.add.image(767,10,'speaker');
+        speaker.inputEnabled = true;
+        speaker.fixedToCamera = true;
+        speaker.input.useHandCursor = true;
+        speaker.events.onInputDown.add(toggleSound, this);
+        speaker.frame = 1;
+        
+        //sfx
+        sfxSplash = game.add.audio('sfxSplash');
+        sfxStar = game.add.audio('sfxStar');
+        sfxSucked = game.add.audio('sfxSucked');
+        sfxLife = game.add.audio('sfxLife');
+        sfxCntBtn = game.add.audio('sfxCntBtn');
+        sfxBadTile = game.add.audio('sfxBadTile',0.4);
+        sfxJet = game.add.audio('sfxJet');
+        sfxSpring = game.add.audio('sfxSpring');
+        sfxHit = game.add.audio('sfxHit');
+        sfxBounce = game.add.audio('sfxBounce');
+        sfxJetTaken = game.add.audio('sfxJetTaken');
+        sfxScore = game.add.audio('sfxScore',0.8,true);
+        sfxNew_life = game.add.audio('sfxNew_life',true);
+        
+        allSfx = [sfxSplash,sfxStar,sfxSucked,sfxLife,sfxCntBtn,sfxBadTile,sfxJet,sfxSpring,sfxHit,sfxBounce,sfxJetTaken,
+        sfxScore,sfxNew_life];
     
-    createClouds();
+        // keys
+        cursors = game.input.keyboard.createCursorKeys();
+        
+        game.camera.deadzone = new Phaser.Rectangle(100, 100, 350, 400);
     
-    objects = [colors, colors4, enemies, holes, coins, contBtns, jets, fishes, springs, helicopters, clouds, trees];
+        themeMusic.load();
+        themeMusic.setVolume(40).play();
+        
+        themeMusic.bind("canplaythrough", function(e) {loadComplete('Music');});
+        
+        
+        if (!this.game.device.desktop){
+                try{ mc.destroy(); }catch(e){}
+                
+                screen = document.getElementById('game');
+                mc = new Hammer(screen);
+                mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL, threshold: 20 });
+                
+                mc.on("swiperight", function(ev) {
+                    if (!ev.handled){
+                        ball.body.gravity.x = BALL_GRAV_X;
+                        ball.body.angularVelocity = ANG_VELOCITY;
+                    };   
+                });
+                
+                mc.on("swipeleft", function(ev) {
+                    if (!ev.handled){
+                        ball.body.gravity.x = -BALL_GRAV_X;
+                        ball.body.angularVelocity = -ANG_VELOCITY;
+                    };  
+                });
+                
+            /*    mc.on("swipeup", function(ev) {
+                     if(!ev.handled){
+                         turnPlane('up');
+                     };
+                });*/
+                
+                mc.on("swipedown", function(ev) {
+                     if(!ev.handled){
+                        ball.body.gravity.y += 5;
+                        ball.body.angularVelocity *= 0.8;
+                     };
+                });
+                
+               /* mc.on('doubletap', function(ev) {
+                    togglePause();
+                });*/
+            }
+    },
     
-    speaker = game.add.image(767,10,'speaker');
-    speaker.inputEnabled = true;
-    speaker.fixedToCamera = true;
-    speaker.input.useHandCursor = true;
-    speaker.events.onInputDown.add(toggleSound, this);
-    speaker.frame = 1;
-    
-    //sfx
-    sfxSplash = game.add.audio('sfxSplash');
-    sfxStar = game.add.audio('sfxStar');
-    sfxSucked = game.add.audio('sfxSucked');
-    sfxLife = game.add.audio('sfxLife');
-    sfxCntBtn = game.add.audio('sfxCntBtn');
-    sfxBadTile = game.add.audio('sfxBadTile',0.4);
-    sfxJet = game.add.audio('sfxJet');
-    sfxSpring = game.add.audio('sfxSpring');
-    sfxHit = game.add.audio('sfxHit');
-    sfxBounce = game.add.audio('sfxBounce');
-    sfxJetTaken = game.add.audio('sfxJetTaken');
-    sfxScore = game.add.audio('sfxScore',0.8,true);
-    sfxNew_life = game.add.audio('sfxNew_life',true);
-    
-    allSfx = [sfxSplash,sfxStar,sfxSucked,sfxLife,sfxCntBtn,sfxBadTile,sfxJet,sfxSpring,sfxHit,sfxBounce,sfxJetTaken,
-    sfxScore,sfxNew_life];
-
-    // keys
-    cursors = game.input.keyboard.createCursorKeys();
-    
-    game.camera.deadzone = new Phaser.Rectangle(100, 100, 350, 400);
-
-    themeMusic.load();
-    themeMusic.setVolume(40).play();
-    
-    themeMusic.bind("canplaythrough", function(e) {loadComplete('Music');});
-    
-    
-    if (!this.game.device.desktop){
-            try{ mc.destroy(); }catch(e){}
+    update: function(){
+        if(!gameStarted){
+                
+                if(game.input.activePointer.isDown){
+                    removeLogo(); 
+                }
+                
+                level = (chooseLevelImg.x-55)/70;
+                if (cursors.left.isDown) chooseBall(logoImg1);
+                else if (cursors.right.isDown) chooseBall(logoImg2);
+                else if (cursors.down.isDown && chooseLevelImg.x > 55){
+                    chooseLevelImg.x -= 70;  
+                    level = (chooseLevelImg.x-55)/70;   
+                }
+                else if (cursors.up.isDown && chooseLevelImg.x < 55+((bestUserLevel-1)*70)){
+                    chooseLevelImg.x += 70; 
+                    level = (chooseLevelImg.x-55)/70;
+                    levelText.text = '' + ((chooseLevelImg.x-55)/70+1);
+                }
+            }
+            try{
+                if (fishLocationX[level].length > 0){ // fish stuff    
+                     fishes.forEach(function(fish){
+                        if (fish.body.y > 602) fish.body.y = 602;
             
-            screen = document.getElementById('game');
-            mc = new Hammer(screen);
-            mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL, threshold: 20 });
+                        if (movingFish && fish.body.y >= 602){
+                            fish.body.moves = false; 
+                            anotherFishTimer = 0; 
+                            fishTimer++;
+                            
+                            if (fishTimer == 120 + ((fishLocationX[level].length-1)*75)) movingFish = false;           
+                        }
+                        
+                        else if (!movingFish){
+                            fish.body.moves = true;
+                            fishTimer = 0;
+                            anotherFishTimer++;
+                       
+                            if (anotherFishTimer > 5 + ((fishLocationX[level].length-1)*200) && fish.body.y >= 602) movingFish = true; 
+                        }
+                        
+                        else if (fish.body.y < 603){
+                            fish.body.moves = true;
+                            if (fish.body.velocity.y > 325) fish.body.velocity.y = 325;             
+                        }
+                    });
+                }
+            }catch(e){}
             
-            mc.on("swiperight", function(ev) {
-                if (!ev.handled){
-                    ball.body.gravity.x = BALL_GRAV_X;
-                    ball.body.angularVelocity = ANG_VELOCITY;
-                };   
-            });
-            
-            mc.on("swipeleft", function(ev) {
-                if (!ev.handled){
+            if (!gameOn && gameStarted){
+                 if(game.input.activePointer.isDown){
+                    goToNextLevel(); 
+                }
+            }
+           
+            if (gameOn){
+                oldX = thisX;
+                timeFromLastCollision += game.time.elapsed;
+                
+                if (timeBonus > 0){ // subtract time bonus
+                    timeBonus -= 0.2;
+                    timeBonusText.text = '' + Math.round(timeBonus);
+                }
+                
+                if (greatJump){
+                    jumpTextTimer += game.time.elapsed;
+                    if (jumpTextTimer > 2500){
+                        try{jumpText.destroy();}catch(e){}
+                        try{jumpText2.destroy();}catch(e){}
+                        jumpTextTimer = 0;
+                        greatJump = false;
+                    }
+                }
+        
+                if (ball.body.y < 40) ball.body.y = 80;
+                
+                if (cursors.up.isUp && jetOpened) closeJet();
+                  
+                if (cursors.left.isDown){
                     ball.body.gravity.x = -BALL_GRAV_X;
                     ball.body.angularVelocity = -ANG_VELOCITY;
-                };  
-            });
-            
-        /*    mc.on("swipeup", function(ev) {
-                 if(!ev.handled){
-                     turnPlane('up');
-                 };
-            });*/
-            
-            mc.on("swipedown", function(ev) {
-                 if(!ev.handled){
+                    if (jetOpened && jetSeconds < 1) closeJet();
+                }
+                
+                else if (cursors.right.isDown){
+                    ball.body.gravity.x = BALL_GRAV_X;
+                    ball.body.angularVelocity = ANG_VELOCITY;
+                    if (jetOpened && jetSeconds < 1) closeJet();
+                }
+                
+                else if (cursors.down.isDown){
                     ball.body.gravity.y += 5;
                     ball.body.angularVelocity *= 0.8;
-                 };
-            });
-            
-           /* mc.on('doubletap', function(ev) {
-                togglePause();
-            });*/
+                    if (jetOpened && jetSeconds < 1) closeJet();
+                }
+                
+                else if (cursors.up.isDown){ // jet pack stuff
+                    if (jetSeconds > 0){
+                        ball.frame = 1;
+                        
+                        if (!jetOpened){
+                            jetOpened = true;
+                            countJetSeconds = setInterval(function(){
+                                if (jetSeconds > 0){
+                                    ball.body.gravity.y -= 1.5;
+                                    jetSeconds--;
+                                    jetSecsText.text = '' + jetSeconds;
+                                    if (!jetSfxOn){
+                                        jetSfxOn = true;
+                                        sfxJet.play();
+                                    }
+                                } 
+                            },10);
+                        }
+                    }
+                    else{closeJet();}
+                }
+        
+                else{
+                     ball.body.gravity.y = BALL_GRAV_Y; 
+                   /* ball.body.gravity.x = 0;
+                    ball.body.gravity.y = BALL_GRAV_Y; 
+                    
+                    if (ball.angle > 2) ball.body.angularVelocity = -ANG_VELOCITY*1.25;
+                    else if (ball.angle < -2) ball.body.angularVelocity = ANG_VELOCITY*1.25; 
+                    else{ ball.body.angularVelocity = 0; }*/
+                }
+                
+                colors.forEach(function(item){
+                    if (item.key == "color2") item.body.velocity.x = 0;   
+                });
+                
+                coins.forEach(function(item){
+                    checkOverlap_ball_coin(ball, item);
+                });
+        
+                if (color4LocationX[level].length > 0){ // helicopter stuff
+                    helicopterTimer += 1;
+                    if (helicopterTimer >= 270){
+                        helicopterTimer -= 270;
+                        for (var x=0; x<color4LocationX[level].length; x++){
+                            helicopter = helicopters.create(color4LocationX[level][x], color4LocationY[level][x]-50, 'helicopter');
+                            helicopter.body.gravity.y = -10;
+                        }
+                    }
+                  
+                    helicopters.forEach(function(_helicopter) {
+                        if (_helicopter.body.x < ball.body.x) _helicopter.body.velocity.x = 50;
+                        else {_helicopter.body.velocity.x = -50;}
+                         
+                        if (_helicopter.body.y < ball.body.y) _helicopter.body.velocity.y = 20;
+                        else {_helicopter.body.velocity.y = -20;}  
+                    });
+                }
+        
+                // collissions
+                game.physics.arcade.collide(colors, ball, ballHitColor, null, this);
+                game.physics.arcade.collide(ceiling, ball, null, null, this);
+                game.physics.arcade.collide(contBtns, ball, contOn, null, this);
+                game.physics.arcade.collide(jets, ball, takeObj, null, this);
+                game.physics.arcade.collide(holes, ball, nextLevel, null, this);
+                game.physics.arcade.collide(springs, ball, springAnimation, null, this);
+                game.physics.arcade.collide(colors4, ball, null, null, this);
+                
+                game.physics.arcade.collide(floor, ball, splashAnimation, null, this);
+                game.physics.arcade.collide(enemies, ball, killBall, null, this);
+                game.physics.arcade.collide(fishes, ball, killBall, null, this);
+                game.physics.arcade.collide(helicopters, ball, killByHelicopter, null, this);
+               
+                game.physics.arcade.collide(ceiling, colors, null, null, this);
+                game.physics.arcade.collide(floor, colors, null, null, this);
+                game.physics.arcade.collide(colors, colors, null, null, this);
+                game.physics.arcade.collide(colors, contBtns, null, null, this);
+                game.physics.arcade.collide(helicopters, colors, killHeli, null, this);
+            }
         }
-}
+    };
 
 function chooseLevel(_level){
     factor = _level.alpha*10;
@@ -416,13 +522,13 @@ function initBall(){
     levelText.text = '' + (level+1); 
     if (ballChosen == 'mr'){
         ball = game.add.sprite(INIT_BALL_X, INIT_BALL_Y, 'ball');
-        BALL_GRAV_X = 200;
+        BALL_GRAV_X = 100;
         BALL_GRAV_Y = 150;
         BALL_BOUNCE_Y = 0.85;
     }
     else if (ballChosen == 'miss'){
         ball = game.add.sprite(INIT_BALL_X, INIT_BALL_Y, 'miss_ball');  
-        BALL_GRAV_X = 250;
+        BALL_GRAV_X = 125;
         BALL_GRAV_Y = 130;
         BALL_BOUNCE_Y = 0.77;  
     }
@@ -447,173 +553,7 @@ function initBall(){
 }
 
 function update(){ 
-    if(!gameStarted){
-        
-        if(game.input.activePointer.isDown){
-            removeLogo(); 
-        }
-        
-        level = (chooseLevelImg.x-55)/70;
-        if (cursors.left.isDown) chooseBall(logoImg1);
-        else if (cursors.right.isDown) chooseBall(logoImg2);
-        else if (cursors.down.isDown && chooseLevelImg.x > 55){
-            chooseLevelImg.x -= 70;  
-            level = (chooseLevelImg.x-55)/70;   
-        }
-        else if (cursors.up.isDown && chooseLevelImg.x < 55+((bestUserLevel-1)*70)){
-            chooseLevelImg.x += 70; 
-            level = (chooseLevelImg.x-55)/70;
-            levelText.text = '' + ((chooseLevelImg.x-55)/70+1);
-        }
-    }
-    try{
-        if (fishLocationX[level].length > 0){ // fish stuff    
-             fishes.forEach(function(fish){
-                if (fish.body.y > 602) fish.body.y = 602;
-    
-                if (movingFish && fish.body.y >= 602){
-                    fish.body.moves = false; 
-                    anotherFishTimer = 0; 
-                    fishTimer++;
-                    
-                    if (fishTimer == 120 + ((fishLocationX[level].length-1)*75)) movingFish = false;           
-                }
-                
-                else if (!movingFish){
-                    fish.body.moves = true;
-                    fishTimer = 0;
-                    anotherFishTimer++;
-               
-                    if (anotherFishTimer > 5 + ((fishLocationX[level].length-1)*200) && fish.body.y >= 602) movingFish = true; 
-                }
-                
-                else if (fish.body.y < 603){
-                    fish.body.moves = true;
-                    if (fish.body.velocity.y > 325) fish.body.velocity.y = 325;             
-                }
-            });
-        }
-    }catch(e){}
    
-    if (gameOn){
-        oldX = thisX;
-        timeFromLastCollision += game.time.elapsed;
-        
-        if (timeBonus > 0){ // subtract time bonus
-            timeBonus -= 0.2;
-            timeBonusText.text = '' + Math.round(timeBonus);
-        }
-        
-        if (greatJump){
-            jumpTextTimer += game.time.elapsed;
-            if (jumpTextTimer > 2500){
-                try{jumpText.destroy();}catch(e){}
-                try{jumpText2.destroy();}catch(e){}
-                jumpTextTimer = 0;
-                greatJump = false;
-            }
-        }
-
-        if (ball.body.y<40) ball.body.y = 80;
-        
-        if (cursors.up.isUp && jetOpened) closeJet();
-          
-        if (cursors.left.isDown){
-            ball.body.gravity.x = -BALL_GRAV_X;
-            ball.body.angularVelocity = -ANG_VELOCITY;
-            if (jetOpened && jetSeconds < 1) closeJet();
-        }
-        
-        else if (cursors.right.isDown){
-            ball.body.gravity.x = BALL_GRAV_X;
-            ball.body.angularVelocity = ANG_VELOCITY;
-            if (jetOpened && jetSeconds < 1) closeJet();
-        }
-        
-        else if (cursors.down.isDown){
-            ball.body.gravity.y += 5;
-            ball.body.angularVelocity *= 0.8;
-            if (jetOpened && jetSeconds < 1) closeJet();
-        }
-        
-        else if (cursors.up.isDown){ // jet pack stuff
-            if (jetSeconds > 0){
-                ball.frame = 1;
-                
-                if (!jetOpened){
-                    jetOpened = true;
-                    countJetSeconds = setInterval(function(){
-                        if (jetSeconds > 0){
-                            ball.body.gravity.y -= 1.5;
-                            jetSeconds--;
-                            jetSecsText.text = '' + jetSeconds;
-                            if (!jetSfxOn){
-                                jetSfxOn = true;
-                                sfxJet.play();
-                            }
-                        } 
-                    },10);
-                }
-            }
-            else{closeJet();}
-        }
-
-        else{
-            ball.body.gravity.x = 0;
-            ball.body.gravity.y = BALL_GRAV_Y; 
-            
-            if (ball.angle > 2) ball.body.angularVelocity = -ANG_VELOCITY*1.25;
-            else if (ball.angle < -2) ball.body.angularVelocity = ANG_VELOCITY*1.25; 
-            else{ ball.body.angularVelocity = 0; }
-        }
-        
-        colors.forEach(function(item){
-            if (item.key == "color2") item.body.velocity.x = 0;   
-        });
-        
-        coins.forEach(function(item){
-            checkOverlap_ball_coin(ball, item);
-        });
-
-        if (color4LocationX[level].length > 0){ // helicopter stuff
-            helicopterTimer += 1;
-            if (helicopterTimer >= 270){
-                helicopterTimer -= 270;
-                for (var x=0; x<color4LocationX[level].length; x++){
-                    helicopter = helicopters.create(color4LocationX[level][x], color4LocationY[level][x]-50, 'helicopter');
-                    helicopter.body.gravity.y = -10;
-                }
-            }
-          
-            helicopters.forEach(function(_helicopter) {
-                if (_helicopter.body.x < ball.body.x) _helicopter.body.velocity.x = 50;
-                else {_helicopter.body.velocity.x = -50;}
-                 
-                if (_helicopter.body.y < ball.body.y) _helicopter.body.velocity.y = 20;
-                else {_helicopter.body.velocity.y = -20;}  
-            });
-        }
-
-        // collissions
-        game.physics.arcade.collide(colors, ball, ballHitColor, null, this);
-        game.physics.arcade.collide(ceiling, ball, null, null, this);
-        game.physics.arcade.collide(contBtns, ball, contOn, null, this);
-        game.physics.arcade.collide(jets, ball, takeObj, null, this);
-        game.physics.arcade.collide(holes, ball, nextLevel, null, this);
-        game.physics.arcade.collide(springs, ball, springAnimation, null, this);
-        game.physics.arcade.collide(colors4, ball, null, null, this);
-        
-        game.physics.arcade.collide(floor, ball, splashAnimation, null, this);
-        game.physics.arcade.collide(enemies, ball, killBall, null, this);
-        game.physics.arcade.collide(fishes, ball, killBall, null, this);
-        game.physics.arcade.collide(helicopters, ball, killByHelicopter, null, this);
-       
-        game.physics.arcade.collide(ceiling, colors, null, null, this);
-        game.physics.arcade.collide(floor, colors, null, null, this);
-        game.physics.arcade.collide(colors, colors, null, null, this);
-        game.physics.arcade.collide(colors, contBtns, null, null, this);
-        game.physics.arcade.collide(helicopters, colors, killHeli, null, this);
-    }
 }
 
 function closeJet(){
@@ -1023,49 +963,11 @@ function createClouds(){
 }
 
 function endGame(){   
-    initBall(); 
-    ball.visible = false;
-    ball.body.x = INIT_BALL_X;
-    ball.body.moves = false;
-    musics[track].stop();
+    game.state.start('GameOver', false, false, score); 
+}
 
-    contPoint = 0;
-    helicopterTimer = 0;
-    jetSeconds = 0;
-    
-    game.input.keyboard.removeKey(Phaser.Keyboard.P);
-    game.input.keyboard.removeKey(Phaser.Keyboard.R);
-    game.input.keyboard.removeKey(Phaser.Keyboard.H);    
-    
-    $('#endFrame').show();
-    $('#endFrame').css('left',($(document).width()/2)-146);
-    $('#gameOver').html("Game over! Your score: " + score);
-    $('#userLast').html(score);
-    $('#name').focus();
-    if (userName != undefined) $('#name').val(userName);
-
-    $('#restart').click(function(){
-        if ($('#name').val() != '' && $('#name').val() != undefined){
-            name = $('#name').val();
-            
-            if (score >= 250){
-                sendHighScore();
-                setTimeout(function(){getHighScore();},1000);
-            }  
-             
-            $('#endFrame').hide();
-            
-            locateObjects();
-            ball.body.moves = true;
-    
-            $('#game').focus();
-
-            gameStarted = false;
-            gameOn = false;
-            game.camera.x = 0;
-            create(); 
-        }
-    });
+function save_scroe(){
+    return null;
 }
 
 function init_Ball_attr(){
@@ -1089,7 +991,11 @@ function pauseGame(){
         enemies.forEach(function(item) {item.body.moves = !item.body.moves;});
         
         sfxJet.pause();
-        if (cursors.up.isUp) clearInterval(countJetSeconds);
+        if (cursors.up.isUp){
+            try{ 
+                clearInterval(countJetSeconds);
+            } catch(e){};
+        }
     }
 }
 
@@ -1107,89 +1013,6 @@ function restartLevel(){
         initBall(); 
         init_Ball_attr();
     }
-}
-
-function sendHighScore(){  
-    $.ajax({
-        url: 'http://www.johnnytal.com/php/bouncy.php',
-        type: 'POST',
-        cache: false,
-        data: {name:name, score:score, level:level+1, userId:userId, biggestJump:biggestJump, longestFlight:longestFlight}
-    }).done(function(){
-        getUserScore();
-    });    
-}
-
-function getHighScore(){
-    $.ajax({                            
-        url: 'http://www.johnnytal.com/php/getBouncyScore.php',         
-        dataType: 'html'
-    }).done(function(response){
-        $('#output').html(response);
-        loadComplete('High Scores');
-    });
-}
-
-function getUserScore(userId){
-    $.ajax({
-        url: 'http://www.johnnytal.com/php/getUserScore.php',
-        type: 'POST',
-        cache: false,
-        data: {userId:userId},
-        dataType:"json",
-    }).done(function(result){
-        getResults(result);
-        loadComplete("User's statistics");
-    });  
-}
-
-function getAnyoneScore(){
-    $.ajax({
-        url: 'http://www.johnnytal.com/php/getAnyoneScore.php',
-        type: 'POST',
-        cache: false,
-        dataType:"json",
-    }).done(function(result){
-        getAnyoneResults(result);
-    });  
-}
-
-function getResults(result){
-    if (result[0] != undefined && result[0] != NaN){
-        userHi = parseInt(result[0]);
-        $('#userHi').html(userHi);
-    }
-    if (result[1] != undefined && result[1] != NaN){
-        userBiggest = parseInt(result[1]);
-        $('#userJump').html(userBiggest + " ft.");
-    }
-    if (result[2] != undefined && result[2] != NaN){
-        userLongest = parseFloat(result[2]);
-        $('#userFlight').html(userLongest + " sec.");
-    }
-}
-
-function getAnyoneResults(result){
-    if (result[0] != undefined &&  result[0] != NaN){
-        biggestEver = parseInt(result[0]);
-        $('#biggestJump').html(biggestEver + " ft.");
-    }
-    if (result[1] != undefined &&  result[1] != NaN){
-        longestEver = parseFloat(result[1]);
-        $('#longestEver').html(longestEver + " sec.");
-    }      
-}
-
-function onLogIn(){
-    try{
-        for(x=9; x>bestUserLevel-1; x--) levelLockImg[x].destroy();
-        setTimeout(function(){
-            for (n=0; n<10; n++){
-                if (n > bestUserLevel-1) levelLockImg[n] = game.add.image(75+(n*70),100,'lock');
-            }
-            chooseLevelImg.x = 55+((bestUserLevel-1)*70);
-        },1200);
-    } catch(e){}
 }
  
 function loadComplete(what){
