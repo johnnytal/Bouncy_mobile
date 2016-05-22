@@ -52,8 +52,7 @@ preloader.prototype = {
         game.load.spritesheet('debris', 'images/bouncey/debris.png', 40, 17, 4);
         game.load.spritesheet('debris_b', 'images/bouncey/debris_b.png', 40, 30, 4);
         game.load.spritesheet('debris_p', 'images/bouncey/debris_p.png', 40, 30, 4);
-        game.load.spritesheet('speaker', 'images/bouncey/speaker.png',30,26,2);
-        
+  
         game.load.audio('sfxSplash', 'sounds/splash2.wav');
         game.load.audio('sfxStar', 'sounds/star.wav');
         game.load.audio('sfxSucked', 'sounds/sucked.wav');

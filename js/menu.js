@@ -14,7 +14,7 @@ menu.prototype = {
         logoText = game.add.text(230, 165, 'Choose your character:', { font: "28px "  + font, fill: "#002800"});
         logoText2 = game.add.text(70, 18, 'B O U N C Y !', { font: "35px "  + font, fill: "darkblue"});
         logoText3 = game.add.text(340, 35, 'The Ball That Bounces Much', { font: "22px "  + font, fill: "#965000"});
-        logoText4 = game.add.text(245, 415, 'Press ENTER to start', { font: "28px "  + font, fill: "#A52A2A"});
+        logoText4 = game.add.text(320, 440, 'Tap to Start', { font: "28px "  + font, fill: "#A52A2A"});
         
         logoImg1 = game.add.image(315, 300,'ball');
         logoImg2 = game.add.image(460, 300,'miss_ball');
@@ -31,23 +31,21 @@ menu.prototype = {
         storyText = game.add.text(60,380, "Ms. Bouncy was kidnapped by the evil mr. fish! it's up to you to save her!" , { font: "18px "  + font, fill: "#002800"});
 
         chooseLevelImg = game.add.image(55+((bestUserLevel-1)*70),80,'choose2');
-        
-        setTimeout(function(){
-            if (levelColorImg[0] == undefined){
-                for (n=0; n<10; n++){
-                    levelColorImg[n] = game.add.image(55+(n*70),80,'color1');
-                    levelColorImg[n].alpha = round((n/10)+0.1,1);
-                    levelColorImg[n].inputEnabled = true;
-                    levelColorImg[n].events.onInputDown.add(chooseLevel, this);
-                    levelColorImg[n].input.useHandCursor = true;
-                    
-                    if (n > bestUserLevel-1) levelLockImg[n] = game.add.image(75+(n*70),100,'lock');
-                    chooseLevelText[n] = game.add.text(70+(n*70),90,'Level \n    ' + (n+1),  { font: "14px "  + font, fill: "lightyellow"});
-                }
+
+        if (levelColorImg[0] == undefined){
+            for (n=0; n<10; n++){
+                levelColorImg[n] = game.add.image(55 + (n * 70), 80, 'color1');
+                levelColorImg[n].alpha = round((n / 10) + 0.1, 1);
+                levelColorImg[n].inputEnabled = true;
+                levelColorImg[n].events.onInputDown.add(chooseLevel, this);
+                levelColorImg[n].input.useHandCursor = true;
+                
+                if (n > bestUserLevel-1) levelLockImg[n] = game.add.image(75 + (n * 70), 100, 'lock');
+                chooseLevelText[n] = game.add.text(70 + (n * 70), 90, 'Level \n    ' + (n + 1),  { font: "14px "  + font, fill: "lightyellow"});
             }
-            chooseLevelImg.x = 55+((bestUserLevel-1)*70);
-        },1200);
-  
+        }
+        chooseLevelImg.x = 55 + ((bestUserLevel - 1) * 70);
+
         clouds = game.add.group();
         clouds.enableBody = true;
         clouds.physicsBodyType = Phaser.Physics.ARCADE;
@@ -103,6 +101,6 @@ function chooseBall(kindOfBall){
 }
 
 function chooseLevel(_level){
-    factor = _level.alpha*10;
-    if(factor < bestUserLevel+1) chooseLevelImg.x = (factor)*70-15;
+    factor = _level.alpha * 10;
+    if (factor < bestUserLevel + 1) chooseLevelImg.x = (factor) * 70 - 15;
 }

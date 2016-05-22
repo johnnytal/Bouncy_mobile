@@ -23,19 +23,10 @@ function start(){
 var boot = function(game){};
 
 boot.prototype = {
-    preload: function(){
-
-    },
+    preload: function(){},
     
     create: function(){  
-        font = 'Fontdiner Swanky';      
-
-        bannerNotCraeted = true;
-        
-        frame = 0;
-        name = '';
-        googlelogindone = false;
-        var socialService;
+        font = 'Fontdiner Swanky';
 
         if (this.game.device.desktop){
             this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;

@@ -36,6 +36,7 @@ game_over.prototype = {
             bestMessage = '';
         }
         */
+       
         message = 'Your score: \n' + score; 
      
         modal.createModal({

@@ -1,6 +1,6 @@
 var game_main = function(game){
     var score, lives, level, timeBonus, reason, countJetSeconds, endLevelStuff, name;
-    var thisX,newX,oldX, jumpDistance, notHidden, logoImg1, logoImg2, chooseLevelImg, track;
+    var thisX, newX, oldX, jumpDistance, notHidden, logoImg1, logoImg2, chooseLevelImg, track;
     
     screenNames = ['Welcome!','Ups & downs','Break the wall!','Ground control to Major Bouncy','Hot potato'
     ,'Run Bouncy, Run!','Icarus','A most elusive fish...','Eclectic bounce','The maze of doom, Mu-hahaha!'];
@@ -21,7 +21,6 @@ var game_main = function(game){
     ANG_VELOCITY = 60;
     
     gameOn = false;
-    gameStarted = false;
     KillInProgress = false;
     notHidden = true;
     contPoint = 0;
@@ -181,52 +180,11 @@ game_main.prototype = {
         themeMusic.setVolume(40).play();
 
         if (!this.game.device.desktop){
-            try{ mc.destroy(); } catch(e){}
-            
-            screen = document.getElementById('game');
-            mc = new Hammer(screen);
-            mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL, threshold: 20 });
-            
-            mc.on("swiperight", function(ev) {
-                if (!ev.handled){
-                    ball.body.gravity.x = BALL_GRAV_X;
-                    ball.body.angularVelocity = ANG_VELOCITY;
-                };   
-            });
-            
-            mc.on("swipeleft", function(ev) {
-                if (!ev.handled){
-                    ball.body.gravity.x = -BALL_GRAV_X;
-                    ball.body.angularVelocity = -ANG_VELOCITY;
-                };  
-            });
-            
-            /*mc.on("swipeup", function(ev) {
-                 if(!ev.handled){
-                     turnPlane('up');
-                 };
-            });*/
-            
-            mc.on("swipedown", function(ev) {
-                if(!ev.handled){
-                    ball.body.gravity.y += 5;
-                    ball.body.angularVelocity *= 0.8;
-                    
-                    ball.body.gravity.x = 0;
-                    ball.body.velocity.x /= 2;
-                    
-                    if (ball.angle > 2) ball.body.angularVelocity = -ANG_VELOCITY * 1.25;
-                    else if (ball.angle < -2) ball.body.angularVelocity = ANG_VELOCITY * 1.25; 
-                    else{ ball.body.angularVelocity = 0; };
-                };
-            });
-            
-            /*mc.on('doubletap', function(ev) {
-                togglePause();
-            });*/
+            mcHammer();
         }
         
-        newLevelText = game.add.text(420, 270, "Level " + [level+1] + ": \n" + screenNames[level], { font: "40px Fontdiner Swanky", fill: "#a65200"});
+        newLevelText = game.add.text(420, 270, "Level " + [level+1] + ": \n" + screenNames[level], 
+        { font: "40px " + font, fill: "#a65200"});
         newLevelText.anchor.x = 0.5;
         
         game.time.events.add(2000, function() {
@@ -270,12 +228,10 @@ game_main.prototype = {
             }
         } catch(e){}
             
-        if (!gameOn && gameStarted){
-             if(game.input.activePointer.isDown){
-                goToNextLevel(); 
-            }
+        if (!gameOn && game.input.activePointer.isDown){
+            goToNextLevel(); 
         }
-           
+
         if (gameOn){
             oldX = thisX;
             timeFromLastCollision += game.time.elapsed;
@@ -288,8 +244,8 @@ game_main.prototype = {
             if (greatJump){
                 jumpTextTimer += game.time.elapsed;
                 if (jumpTextTimer > 2500){
-                    try{jumpText.destroy();}catch(e){}
-                    try{jumpText2.destroy();}catch(e){}
+                    try {jumpText.destroy();} catch(e){}
+                    try {jumpText2.destroy();} catch(e){}
                     jumpTextTimer = 0;
                     greatJump = false;
                 }
@@ -401,7 +357,7 @@ function startMusic(){
 }
 
 function initBall(){ 
-    levelText.text = '' + (level+1); 
+    levelText.text = '' + (level + 1); 
     
     if (ballChosen == 'mr'){
         ball = game.add.sprite(INIT_BALL_X, INIT_BALL_Y, 'ball');
@@ -425,12 +381,11 @@ function initBall(){
     ball.anchor.setTo(0.5, 0.5);
     
     game.camera.follow(ball);
-    gameStarted = true; 
     gameOn = true;
     
     if (level == 9){
-        if (ballChosen == 'mr') game.add.image(765,270,'miss_ball');
-        else if (ballChosen == 'miss') game.add.image(765,270,'ball');
+        if (ballChosen == 'mr') game.add.image(765, 270, 'miss_ball');
+        else if (ballChosen == 'miss') game.add.image(765, 270, 'ball');
     }
     
     locateObjects();
@@ -683,8 +638,8 @@ function killHeli(_helicopter){
 function killBall(reason){
     init_Ball_attr();
     
-    if(contPoint == 0) ball.body.x = INIT_BALL_X;
-    else{ball.body.x = contLocationX[level][0];}
+    if (contPoint == 0) ball.body.x = INIT_BALL_X;
+    else {ball.body.x = contLocationX[level][0];}
     
     lives--;
     livesText.text = 'X ' + lives;
@@ -711,15 +666,6 @@ function killAnimEnded(sprite, animation) {
 }
 
 function locateObjects(){  
-   /* pauseKey = game.input.keyboard.addKey(Phaser.Keyboard.P); 
-    pauseKey.onDown.add(pauseGame, this);
-    
-    hsKey = game.input.keyboard.addKey(Phaser.Keyboard.H); 
-    hsKey.onDown.add(hideHs, this);
-    
-    restartKey = game.input.keyboard.addKey(Phaser.Keyboard.R); 
-    restartKey.onDown.add(restartLevel, this);*/
-
     for (o=0; o<objects.length; o++) objects[o].removeAll(true); // destroy all objects
     
     createClouds();
@@ -770,7 +716,7 @@ function locateObjects(){
         fish.body.collideWorldBounds = true;
         fish.body.immovable = true;
         fish.body.velocity.y = -325;
-        fish.body.gravity.y = 165+x*13;
+        fish.body.gravity.y = 165 + x * 13;
         fish.body.bounce.y = 1;
     } 
     
@@ -846,10 +792,6 @@ function endGame(){
     game.state.start('GameOver', false, false, score); 
 }
 
-function save_scroe(){
-    return null;
-}
-
 function init_Ball_attr(){
     ball.body.y = INIT_BALL_Y;
     ball.body.velocity.y = 0;
@@ -860,22 +802,20 @@ function init_Ball_attr(){
 }
 
 function pauseGame(){
-    if (gameStarted){
-        pauseText.visible = !(pauseText.visible);
+    pauseText.visible = !(pauseText.visible);
+
+    gameOn = !gameOn;
+    ball.body.moves = !ball.body.moves;
     
-        gameOn = !gameOn;
-        ball.body.moves = !ball.body.moves;
-        
-        colors.forEach(function(item) {if (item.key == "color2") item.body.moves = !item.body.moves;});
-        fishes.forEach(function(item) {item.body.moves = !item.body.moves;});
-        enemies.forEach(function(item) {item.body.moves = !item.body.moves;});
-        
-        sfxJet.pause();
-        if (cursors.up.isUp){
-            try{ 
-                clearInterval(countJetSeconds);
-            } catch(e){};
-        }
+    colors.forEach(function(item) {if (item.key == "color2") item.body.moves = !item.body.moves;});
+    fishes.forEach(function(item) {item.body.moves = !item.body.moves;});
+    enemies.forEach(function(item) {item.body.moves = !item.body.moves;});
+    
+    sfxJet.pause();
+    if (cursors.up.isUp){
+        try{ 
+            clearInterval(countJetSeconds);
+        } catch(e){};
     }
 }
 
@@ -885,7 +825,7 @@ function round(num, places) {
 }
 
 function restartLevel(){
-    if (lives == 1) {endGame();}
+    if (lives == 1) { endGame(); }
     else{
         killBall();
         locateObjects();
@@ -895,19 +835,72 @@ function restartLevel(){
     }
 }
 
-function toggleSound(){
-    if(speaker.frame == 1){
-        speaker.frame = 0;
-        soundOn = false;
-        for(x=0; x<allSfx.length; x++) allSfx[x].volume = 0;
-        for (n=0; 0<musics.length; n++) musics[n].mute();
-    }
-    else{
-        speaker.frame = 1; 
-        soundOn = true; 
-        for(x=0; x<allSfx.length; x++) allSfx[x].volume = 1;
-        allSfx[5].vloume = 0.4;
-        allSfx[11].vloume = 0.8;
-        for (n=0; 0<musics.length; n++) musics[n].unmute();
-    }
+function mcHammer(){
+    try{ mc.destroy(); } catch(e){}
+        
+    screen = document.getElementById('game');
+    mc = new Hammer(screen);
+    mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL, threshold: 20 });
+    
+    mc.on("swiperight", function(ev) {
+        if (!ev.handled){
+            ball.body.gravity.x = BALL_GRAV_X;
+            ball.body.angularVelocity = ANG_VELOCITY;
+            
+            if (jetOpened && jetSeconds < 1) closeJet();
+        };   
+    });
+    
+    mc.on("swipeleft", function(ev) {
+        if (!ev.handled){
+            ball.body.gravity.x = -BALL_GRAV_X;
+            ball.body.angularVelocity = -ANG_VELOCITY;
+            
+            if (jetOpened && jetSeconds < 1) closeJet();
+        };  
+    });
+    
+    mc.on("swipeup", function(ev) {
+         if(!ev.handled){
+             if (jetSeconds > 0){
+                ball.frame = 1;
+            
+                if (!jetOpened){
+                    jetOpened = true;
+                    countJetSeconds = setInterval(function(){
+                        if (jetSeconds > 0){
+                            ball.body.gravity.y -= 1.5;
+                            jetSeconds--;
+                            jetSecsText.text = '' + jetSeconds;
+                            if (!jetSfxOn){
+                                jetSfxOn = true;
+                                sfxJet.play();
+                            }
+                        } 
+                    },10);
+                }
+            }
+            else{closeJet();}
+         };
+    });
+    
+    mc.on("swipedown", function(ev) {
+        if(!ev.handled){
+            ball.body.gravity.y += 40;
+            ball.body.angularVelocity *= 0.8;
+            
+            ball.body.gravity.x = 0;
+            ball.body.velocity.x /= 2;
+            
+            if (ball.angle > 2) ball.body.angularVelocity = -ANG_VELOCITY * 1.25;
+            else if (ball.angle < -2) ball.body.angularVelocity = ANG_VELOCITY * 1.25; 
+            else{ ball.body.angularVelocity = 0; };
+            
+            if (jetOpened && jetSeconds < 1) closeJet();
+        };
+    });
+    
+    mc.on('doubletap', function(ev) {
+        pauseGame();
+    });
 }
