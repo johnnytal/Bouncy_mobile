@@ -28,8 +28,7 @@ boot.prototype = {
     
     create: function(){  
         font = 'Fontdiner Swanky';      
-        game.stage.backgroundColor = '#f1f1f1';
-        
+
         bannerNotCraeted = true;
         
         frame = 0;
@@ -39,9 +38,7 @@ boot.prototype = {
 
         if (this.game.device.desktop){
             this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            
-         
-            
+
             this.scale.maxWidth = w; 
             this.scale.maxHeight = h; 
             
@@ -53,6 +50,8 @@ boot.prototype = {
 
             this.scale.maxWidth = w;
             this.scale.maxHeight = h;
+            
+            this.game.scale.pageAlignHorizontally = true;
             
             this.scale.forceOrientation(false, true);
         }

@@ -1,13 +1,8 @@
 var game_main = function(game){
-
-    /*getHighScore();
-    getAnyoneScore();
-    */
-    
     var score, lives, level, timeBonus, reason, countJetSeconds, endLevelStuff, name;
     var thisX,newX,oldX, jumpDistance, notHidden, logoImg1, logoImg2, chooseLevelImg, track;
     
-     screenNames = ['Welcome!','Ups & downs','Break the wall!','Ground control to Major Bouncy','Hot potato'
+    screenNames = ['Welcome!','Ups & downs','Break the wall!','Ground control to Major Bouncy','Hot potato'
     ,'Run Bouncy, Run!','Icarus','A most elusive fish...','Eclectic bounce','The maze of doom, Mu-hahaha!'];
     
     objects = [];
@@ -59,8 +54,6 @@ var game_main = function(game){
 game_main.prototype = {
         
     create: function(){
-        if (game.load.hasLoaded) loadComplete('Game resources');
-    
         // init vars
         score = 0;
         lives = 3;
@@ -191,7 +184,6 @@ game_main.prototype = {
                 }
             }
             chooseLevelImg.x = 55+((bestUserLevel-1)*70);
-            loadComplete("User's level");
         },1200);
     
         pauseText = game.add.text(335, 50, 'Game Paused', { font: "22px "  + font, fill: "yellow"});
@@ -240,47 +232,50 @@ game_main.prototype = {
         themeMusic.load();
         themeMusic.setVolume(40).play();
         
-        themeMusic.bind("canplaythrough", function(e) {loadComplete('Music');});
-        
-        
         if (!this.game.device.desktop){
-                try{ mc.destroy(); }catch(e){}
-                
-                screen = document.getElementById('game');
-                mc = new Hammer(screen);
-                mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL, threshold: 20 });
-                
-                mc.on("swiperight", function(ev) {
-                    if (!ev.handled){
-                        ball.body.gravity.x = BALL_GRAV_X;
-                        ball.body.angularVelocity = ANG_VELOCITY;
-                    };   
-                });
-                
-                mc.on("swipeleft", function(ev) {
-                    if (!ev.handled){
-                        ball.body.gravity.x = -BALL_GRAV_X;
-                        ball.body.angularVelocity = -ANG_VELOCITY;
-                    };  
-                });
-                
-            /*    mc.on("swipeup", function(ev) {
-                     if(!ev.handled){
-                         turnPlane('up');
-                     };
-                });*/
-                
-                mc.on("swipedown", function(ev) {
-                     if(!ev.handled){
-                        ball.body.gravity.y += 5;
-                        ball.body.angularVelocity *= 0.8;
-                     };
-                });
-                
-               /* mc.on('doubletap', function(ev) {
-                    togglePause();
-                });*/
-            }
+            try{ mc.destroy(); } catch(e){}
+            
+            screen = document.getElementById('game');
+            mc = new Hammer(screen);
+            mc.get('swipe').set({ direction: Hammer.DIRECTION_ALL, threshold: 20 });
+            
+            mc.on("swiperight", function(ev) {
+                if (!ev.handled){
+                    ball.body.gravity.x = BALL_GRAV_X;
+                    ball.body.angularVelocity = ANG_VELOCITY;
+                };   
+            });
+            
+            mc.on("swipeleft", function(ev) {
+                if (!ev.handled){
+                    ball.body.gravity.x = -BALL_GRAV_X;
+                    ball.body.angularVelocity = -ANG_VELOCITY;
+                };  
+            });
+            
+            /*mc.on("swipeup", function(ev) {
+                 if(!ev.handled){
+                     turnPlane('up');
+                 };
+            });*/
+            
+            mc.on("swipedown", function(ev) {
+                if(!ev.handled){
+                    ball.body.gravity.y += 5;
+                    ball.body.angularVelocity *= 0.8;
+                    
+                    ball.body.gravity.x = 0;
+                    
+                    if (ball.angle > 2) ball.body.angularVelocity = -ANG_VELOCITY * 1.25;
+                    else if (ball.angle < -2) ball.body.angularVelocity = ANG_VELOCITY * 1.25; 
+                    else{ ball.body.angularVelocity = 0; };
+                };
+            });
+            
+            /*mc.on('doubletap', function(ev) {
+                togglePause();
+            });*/
+        }
     },
     
     update: function(){
@@ -403,12 +398,6 @@ game_main.prototype = {
         
                 else{
                      ball.body.gravity.y = BALL_GRAV_Y; 
-                   /* ball.body.gravity.x = 0;
-                    ball.body.gravity.y = BALL_GRAV_Y; 
-                    
-                    if (ball.angle > 2) ball.body.angularVelocity = -ANG_VELOCITY*1.25;
-                    else if (ball.angle < -2) ball.body.angularVelocity = ANG_VELOCITY*1.25; 
-                    else{ ball.body.angularVelocity = 0; }*/
                 }
                 
                 colors.forEach(function(item){
@@ -1013,15 +1002,6 @@ function restartLevel(){
         initBall(); 
         init_Ball_attr();
     }
-}
- 
-function loadComplete(what){
-    try{
-        document.getElementById('loaded').innerHTML = what + "...";   
-        nOfStuffToLoad++;
-        if (connected && nOfStuffToLoad == 7) setTimeout(function(){$('#loader').remove();},1000);
-        else if (!connected && nOfStuffToLoad == 4) setTimeout(function(){$('#loader').remove();},1000);
-    }catch(e){}
 }
 
 function toggleSound(){

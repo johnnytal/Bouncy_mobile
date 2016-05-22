@@ -16,8 +16,6 @@ preloader.prototype = {
 
         // load assets
 
-      game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
-    
         game.load.image('room', 'images/bouncey/newBG2.png');
         game.load.image('choose', 'images/bouncey/choose.png');
         game.load.image('choose2', 'images/bouncey/choose2.png');
@@ -69,26 +67,29 @@ preloader.prototype = {
         game.load.audio('sfxJetTaken', 'sounds/jetTaken.wav');  
         game.load.audio('sfxScore', 'sounds/score.wav');
         game.load.audio('sfxNew_life', 'sounds/new_life.wav');
-        
-        
+
         themeMusic = new buzz.sound("sounds/theme_music.wav", {
             preload: true,
             loop: true
         });
+        
         music1 = new buzz.sound("sounds/music1.wav", {
             preload: true,
             loop: true
         });
+        
         music2 = new buzz.sound("sounds/music2.wav", {
             preload: true,
             loop: true
         });
+        
         musics = [music1, music2, themeMusic];
     },
     
     create: function(){
         this.game.state.start("Game");  
     }, 
+    
     update: function(){           
 
     }
