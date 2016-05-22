@@ -13,6 +13,7 @@ function start(){
 
     game.state.add("Boot", boot);
     game.state.add("Preloader", preloader);
+    game.state.add("Menu", menu);
     game.state.add("Game", game_main);
     game.state.add("GameOver", game_over);
 

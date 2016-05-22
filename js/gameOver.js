@@ -74,7 +74,7 @@ game_over.prototype = {
                     offsetY: 70,
                     offsetX: -60,
                     callback: function () { // new game
-                        game.state.start('Game');
+                        game.state.start('Menu');
                     }
                 }
             ]

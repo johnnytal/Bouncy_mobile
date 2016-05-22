@@ -10,7 +10,6 @@ var game_main = function(game){
     levelLockImg = [];
     chooseLevelText = [];
     allSfx = [];
-    ballChosen = 'mr';
 
     INIT_BALL_X = 50;
     INIT_BALL_Y = 80;
@@ -138,73 +137,22 @@ game_main.prototype = {
         contBtns = game.add.group();
         contBtns.enableBody = true;
         contBtns.physicsBodyType = Phaser.Physics.ARCADE;
-    
-        sea = game.add.tileSprite(0, HEIGHT-134, ROOM_WIDTH, 134, 'sea');
-        sea.alpha = 0.9;
         
-        logo = game.add.image(0,0,'logo');
-    
         clouds = game.add.group();
         clouds.enableBody = true;
         clouds.physicsBodyType = Phaser.Physics.ARCADE;
         clouds.alpha = 0.6;
-        
-        logoText = game.add.text(230, 165, 'Choose your character:', { font: "28px "  + font, fill: "#002800"});
-        logoText2 = game.add.text(70, 18, 'B O U N C Y !', { font: "35px "  + font, fill: "darkblue"});
-        logoText3 = game.add.text(340, 35, 'The Ball That Bounces Much', { font: "22px "  + font, fill: "#965000"});
-        logoText4 = game.add.text(245, 415, 'Press ENTER to start', { font: "28px "  + font, fill: "#A52A2A"});
-        
-        logoImg1 = game.add.image(315, 300,'ball');
-        logoImg2 = game.add.image(460, 300,'miss_ball');
-        logoImg1.inputEnabled = true;
-        logoImg2.inputEnabled = true;
-        logoImg1.input.useHandCursor = true;
-        logoImg2.input.useHandCursor = true;
-        logoImg1.events.onInputDown.add(chooseBall, this);
-        logoImg2.events.onInputDown.add(chooseBall, this);
-       
-        logoImgText = game.add.text(255, 220,'Mr. Bouncy \n (higher jumps but slower & heavier)', { font: "17px "  + font, fill: "darkblue"});
-        chooseImg = game.add.image(305,290,'choose');
-        
-        storyText = game.add.text(60,380, "Ms. Bouncy was kidnapped by the evil mr. fish! it's up to you to save her!" , { font: "18px "  + font, fill: "#002800"});
-
-        chooseLevelImg = game.add.image(55+((bestUserLevel-1)*70),80,'choose2');
-        
-        setTimeout(function(){
-            if (levelColorImg[0] == undefined){
-                for (n=0; n<10; n++){
-                    levelColorImg[n] = game.add.image(55+(n*70),80,'color1');
-                    levelColorImg[n].alpha = round((n/10)+0.1,1);
-                    levelColorImg[n].inputEnabled = true;
-                    levelColorImg[n].events.onInputDown.add(chooseLevel, this);
-                    levelColorImg[n].input.useHandCursor = true;
-                    
-                    if (n > bestUserLevel-1) levelLockImg[n] = game.add.image(75+(n*70),100,'lock');
-                    chooseLevelText[n] = game.add.text(70+(n*70),90,'Level \n    ' + (n+1),  { font: "14px "  + font, fill: "lightyellow"});
-                }
-            }
-            chooseLevelImg.x = 55+((bestUserLevel-1)*70);
-        },1200);
     
+        sea = game.add.tileSprite(0, HEIGHT-134, ROOM_WIDTH, 134, 'sea');
+        sea.alpha = 0.9;
+
         pauseText = game.add.text(335, 50, 'Game Paused', { font: "22px "  + font, fill: "yellow"});
         pauseText.fixedToCamera = true;
         pauseText.visible = false;
-        
-        logoStuff = [logo, logoText, logoText2, logoText3, logoText4, storyText, logoImg1,
-            logoImgText, logoImg2, chooseImg, chooseLevelImg];
-        
-        createClouds();
-        
+
         modal = new gameModal(game);
         
         objects = [colors, colors4, enemies, holes, coins, contBtns, jets, fishes, springs, helicopters, clouds, trees];
-        
-        speaker = game.add.image(767,10,'speaker');
-        speaker.inputEnabled = true;
-        speaker.fixedToCamera = true;
-        speaker.input.useHandCursor = true;
-        speaker.events.onInputDown.add(toggleSound, this);
-        speaker.frame = 1;
         
         //sfx
         sfxSplash = game.add.audio('sfxSplash');
@@ -231,7 +179,7 @@ game_main.prototype = {
     
         themeMusic.load();
         themeMusic.setVolume(40).play();
-        
+
         if (!this.game.device.desktop){
             try{ mc.destroy(); } catch(e){}
             
@@ -265,6 +213,7 @@ game_main.prototype = {
                     ball.body.angularVelocity *= 0.8;
                     
                     ball.body.gravity.x = 0;
+                    ball.body.velocity.x /= 2;
                     
                     if (ball.angle > 2) ball.body.angularVelocity = -ANG_VELOCITY * 1.25;
                     else if (ball.angle < -2) ball.body.angularVelocity = ANG_VELOCITY * 1.25; 
@@ -276,214 +225,6 @@ game_main.prototype = {
                 togglePause();
             });*/
         }
-    },
-    
-    update: function(){
-        if(!gameStarted){
-                
-                if(game.input.activePointer.isDown){
-                    removeLogo(); 
-                }
-                
-                level = (chooseLevelImg.x-55)/70;
-                if (cursors.left.isDown) chooseBall(logoImg1);
-                else if (cursors.right.isDown) chooseBall(logoImg2);
-                else if (cursors.down.isDown && chooseLevelImg.x > 55){
-                    chooseLevelImg.x -= 70;  
-                    level = (chooseLevelImg.x-55)/70;   
-                }
-                else if (cursors.up.isDown && chooseLevelImg.x < 55+((bestUserLevel-1)*70)){
-                    chooseLevelImg.x += 70; 
-                    level = (chooseLevelImg.x-55)/70;
-                    levelText.text = '' + ((chooseLevelImg.x-55)/70+1);
-                }
-            }
-            try{
-                if (fishLocationX[level].length > 0){ // fish stuff    
-                     fishes.forEach(function(fish){
-                        if (fish.body.y > 602) fish.body.y = 602;
-            
-                        if (movingFish && fish.body.y >= 602){
-                            fish.body.moves = false; 
-                            anotherFishTimer = 0; 
-                            fishTimer++;
-                            
-                            if (fishTimer == 120 + ((fishLocationX[level].length-1)*75)) movingFish = false;           
-                        }
-                        
-                        else if (!movingFish){
-                            fish.body.moves = true;
-                            fishTimer = 0;
-                            anotherFishTimer++;
-                       
-                            if (anotherFishTimer > 5 + ((fishLocationX[level].length-1)*200) && fish.body.y >= 602) movingFish = true; 
-                        }
-                        
-                        else if (fish.body.y < 603){
-                            fish.body.moves = true;
-                            if (fish.body.velocity.y > 325) fish.body.velocity.y = 325;             
-                        }
-                    });
-                }
-            }catch(e){}
-            
-            if (!gameOn && gameStarted){
-                 if(game.input.activePointer.isDown){
-                    goToNextLevel(); 
-                }
-            }
-           
-            if (gameOn){
-                oldX = thisX;
-                timeFromLastCollision += game.time.elapsed;
-                
-                if (timeBonus > 0){ // subtract time bonus
-                    timeBonus -= 0.2;
-                    timeBonusText.text = '' + Math.round(timeBonus);
-                }
-                
-                if (greatJump){
-                    jumpTextTimer += game.time.elapsed;
-                    if (jumpTextTimer > 2500){
-                        try{jumpText.destroy();}catch(e){}
-                        try{jumpText2.destroy();}catch(e){}
-                        jumpTextTimer = 0;
-                        greatJump = false;
-                    }
-                }
-        
-                if (ball.body.y < 40) ball.body.y = 80;
-                
-                if (cursors.up.isUp && jetOpened) closeJet();
-                  
-                if (cursors.left.isDown){
-                    ball.body.gravity.x = -BALL_GRAV_X;
-                    ball.body.angularVelocity = -ANG_VELOCITY;
-                    if (jetOpened && jetSeconds < 1) closeJet();
-                }
-                
-                else if (cursors.right.isDown){
-                    ball.body.gravity.x = BALL_GRAV_X;
-                    ball.body.angularVelocity = ANG_VELOCITY;
-                    if (jetOpened && jetSeconds < 1) closeJet();
-                }
-                
-                else if (cursors.down.isDown){
-                    ball.body.gravity.y += 5;
-                    ball.body.angularVelocity *= 0.8;
-                    if (jetOpened && jetSeconds < 1) closeJet();
-                }
-                
-                else if (cursors.up.isDown){ // jet pack stuff
-                    if (jetSeconds > 0){
-                        ball.frame = 1;
-                        
-                        if (!jetOpened){
-                            jetOpened = true;
-                            countJetSeconds = setInterval(function(){
-                                if (jetSeconds > 0){
-                                    ball.body.gravity.y -= 1.5;
-                                    jetSeconds--;
-                                    jetSecsText.text = '' + jetSeconds;
-                                    if (!jetSfxOn){
-                                        jetSfxOn = true;
-                                        sfxJet.play();
-                                    }
-                                } 
-                            },10);
-                        }
-                    }
-                    else{closeJet();}
-                }
-        
-                else{
-                     ball.body.gravity.y = BALL_GRAV_Y; 
-                }
-                
-                colors.forEach(function(item){
-                    if (item.key == "color2") item.body.velocity.x = 0;   
-                });
-                
-                coins.forEach(function(item){
-                    checkOverlap_ball_coin(ball, item);
-                });
-        
-                if (color4LocationX[level].length > 0){ // helicopter stuff
-                    helicopterTimer += 1;
-                    if (helicopterTimer >= 270){
-                        helicopterTimer -= 270;
-                        for (var x=0; x<color4LocationX[level].length; x++){
-                            helicopter = helicopters.create(color4LocationX[level][x], color4LocationY[level][x]-50, 'helicopter');
-                            helicopter.body.gravity.y = -10;
-                        }
-                    }
-                  
-                    helicopters.forEach(function(_helicopter) {
-                        if (_helicopter.body.x < ball.body.x) _helicopter.body.velocity.x = 50;
-                        else {_helicopter.body.velocity.x = -50;}
-                         
-                        if (_helicopter.body.y < ball.body.y) _helicopter.body.velocity.y = 20;
-                        else {_helicopter.body.velocity.y = -20;}  
-                    });
-                }
-        
-                // collissions
-                game.physics.arcade.collide(colors, ball, ballHitColor, null, this);
-                game.physics.arcade.collide(ceiling, ball, null, null, this);
-                game.physics.arcade.collide(contBtns, ball, contOn, null, this);
-                game.physics.arcade.collide(jets, ball, takeObj, null, this);
-                game.physics.arcade.collide(holes, ball, nextLevel, null, this);
-                game.physics.arcade.collide(springs, ball, springAnimation, null, this);
-                game.physics.arcade.collide(colors4, ball, null, null, this);
-                
-                game.physics.arcade.collide(floor, ball, splashAnimation, null, this);
-                game.physics.arcade.collide(enemies, ball, killBall, null, this);
-                game.physics.arcade.collide(fishes, ball, killBall, null, this);
-                game.physics.arcade.collide(helicopters, ball, killByHelicopter, null, this);
-               
-                game.physics.arcade.collide(ceiling, colors, null, null, this);
-                game.physics.arcade.collide(floor, colors, null, null, this);
-                game.physics.arcade.collide(colors, colors, null, null, this);
-                game.physics.arcade.collide(colors, contBtns, null, null, this);
-                game.physics.arcade.collide(helicopters, colors, killHeli, null, this);
-            }
-        }
-    };
-
-function chooseLevel(_level){
-    factor = _level.alpha*10;
-    if(factor < bestUserLevel+1) chooseLevelImg.x = (factor)*70-15;
-}
-
-function chooseBall(kindOfBall){
-    if(kindOfBall.key == "miss_ball"){
-        chooseImg.x = 450;
-        ballChosen = 'miss';
-        
-        logoImgText.text = 'Ms. Bouncy \n (faster & lighter but lower jumps)';
-        storyText.text = "Mr. Bouncy was kidnapped by the evil mr. fish! it's up to you to save him!";
-        logoImgText.x = 415;
-        logoImgText.y = 220;
-        logoImgText.fill = "darkred";
-    }
-    else{
-        chooseImg.x = 305;
-        ballChosen = 'mr';
-        
-        logoImgText.text = 'Mr. Bouncy \n (higher jumps but slower & heavier)';
-        storyText.text = "Ms. Bouncy was kidnapped by the evil mr. fish! it's up to you to save her!";
-        logoImgText.x = 255;
-        logoImgText.y = 220;
-        logoImgText.fill = "darkblue";
-    }
-}
-
-function removeLogo(){
-    if (!gameStarted){
-        for(x=0; x<logoStuff.length; x++) logoStuff[x].destroy();
-        for(x=0; x<levelColorImg.length; x++) levelColorImg[x].destroy(); levelColorImg = [];
-        for(x=0; x<chooseLevelText.length; x++) chooseLevelText[x].destroy();
-        for(x=9; x>bestUserLevel-1; x--) levelLockImg[x].destroy();
         
         newLevelText = game.add.text(420, 270, "Level " + [level+1] + ": \n" + screenNames[level], { font: "40px Fontdiner Swanky", fill: "#a65200"});
         newLevelText.anchor.x = 0.5;
@@ -497,8 +238,160 @@ function removeLogo(){
         startMusic();
 
         initBall();
-    }     
-}
+    },
+    
+    update: function(){
+        try{
+            if (fishLocationX[level].length > 0){ // fish stuff    
+                 fishes.forEach(function(fish){
+                    if (fish.body.y > 602) fish.body.y = 602;
+        
+                    if (movingFish && fish.body.y >= 602){
+                        fish.body.moves = false; 
+                        anotherFishTimer = 0; 
+                        fishTimer++;
+                        
+                        if (fishTimer == 120 + ((fishLocationX[level].length-1)*75)) movingFish = false;           
+                    }
+                    
+                    else if (!movingFish){
+                        fish.body.moves = true;
+                        fishTimer = 0;
+                        anotherFishTimer++;
+                   
+                        if (anotherFishTimer > 5 + ((fishLocationX[level].length-1)*200) && fish.body.y >= 602) movingFish = true; 
+                    }
+                    
+                    else if (fish.body.y < 603){
+                        fish.body.moves = true;
+                        if (fish.body.velocity.y > 325) fish.body.velocity.y = 325;             
+                    }
+                });
+            }
+        } catch(e){}
+            
+        if (!gameOn && gameStarted){
+             if(game.input.activePointer.isDown){
+                goToNextLevel(); 
+            }
+        }
+           
+        if (gameOn){
+            oldX = thisX;
+            timeFromLastCollision += game.time.elapsed;
+            
+            if (timeBonus > 0){ // subtract time bonus
+                timeBonus -= 0.2;
+                timeBonusText.text = '' + Math.round(timeBonus);
+            }
+            
+            if (greatJump){
+                jumpTextTimer += game.time.elapsed;
+                if (jumpTextTimer > 2500){
+                    try{jumpText.destroy();}catch(e){}
+                    try{jumpText2.destroy();}catch(e){}
+                    jumpTextTimer = 0;
+                    greatJump = false;
+                }
+            }
+    
+            if (ball.body.y < 40) ball.body.y = 80;
+            
+            if (cursors.up.isUp && jetOpened) closeJet();
+              
+            if (cursors.left.isDown){
+                ball.body.gravity.x = -BALL_GRAV_X;
+                ball.body.angularVelocity = -ANG_VELOCITY;
+                if (jetOpened && jetSeconds < 1) closeJet();
+            }
+            
+            else if (cursors.right.isDown){
+                ball.body.gravity.x = BALL_GRAV_X;
+                ball.body.angularVelocity = ANG_VELOCITY;
+                if (jetOpened && jetSeconds < 1) closeJet();
+            }
+            
+            else if (cursors.down.isDown){
+                ball.body.gravity.y += 5;
+                ball.body.angularVelocity *= 0.8;
+                if (jetOpened && jetSeconds < 1) closeJet();
+            }
+            
+            else if (cursors.up.isDown){ // jet pack stuff
+                if (jetSeconds > 0){
+                    ball.frame = 1;
+                    
+                    if (!jetOpened){
+                        jetOpened = true;
+                        countJetSeconds = setInterval(function(){
+                            if (jetSeconds > 0){
+                                ball.body.gravity.y -= 1.5;
+                                jetSeconds--;
+                                jetSecsText.text = '' + jetSeconds;
+                                if (!jetSfxOn){
+                                    jetSfxOn = true;
+                                    sfxJet.play();
+                                }
+                            } 
+                        },10);
+                    }
+                }
+                else{closeJet();}
+            }
+    
+            else{
+                 ball.body.gravity.y = BALL_GRAV_Y; 
+            }
+            
+            colors.forEach(function(item){
+                if (item.key == "color2") item.body.velocity.x = 0;   
+            });
+            
+            coins.forEach(function(item){
+                checkOverlap_ball_coin(ball, item);
+            });
+    
+            if (color4LocationX[level].length > 0){ // helicopter stuff
+                helicopterTimer += 1;
+                if (helicopterTimer >= 270){
+                    helicopterTimer -= 270;
+                    for (var x=0; x<color4LocationX[level].length; x++){
+                        helicopter = helicopters.create(color4LocationX[level][x], color4LocationY[level][x]-50, 'helicopter');
+                        helicopter.body.gravity.y = -10;
+                    }
+                }
+              
+                helicopters.forEach(function(_helicopter) {
+                    if (_helicopter.body.x < ball.body.x) _helicopter.body.velocity.x = 50;
+                    else {_helicopter.body.velocity.x = -50;}
+                     
+                    if (_helicopter.body.y < ball.body.y) _helicopter.body.velocity.y = 20;
+                    else {_helicopter.body.velocity.y = -20;}  
+                });
+            }
+    
+            // collissions
+            game.physics.arcade.collide(colors, ball, ballHitColor, null, this);
+            game.physics.arcade.collide(ceiling, ball, null, null, this);
+            game.physics.arcade.collide(contBtns, ball, contOn, null, this);
+            game.physics.arcade.collide(jets, ball, takeObj, null, this);
+            game.physics.arcade.collide(holes, ball, nextLevel, null, this);
+            game.physics.arcade.collide(springs, ball, springAnimation, null, this);
+            game.physics.arcade.collide(colors4, ball, null, null, this);
+            
+            game.physics.arcade.collide(floor, ball, splashAnimation, null, this);
+            game.physics.arcade.collide(enemies, ball, killBall, null, this);
+            game.physics.arcade.collide(fishes, ball, killBall, null, this);
+            game.physics.arcade.collide(helicopters, ball, killByHelicopter, null, this);
+           
+            game.physics.arcade.collide(ceiling, colors, null, null, this);
+            game.physics.arcade.collide(floor, colors, null, null, this);
+            game.physics.arcade.collide(colors, colors, null, null, this);
+            game.physics.arcade.collide(colors, contBtns, null, null, this);
+            game.physics.arcade.collide(helicopters, colors, killHeli, null, this);
+        }
+    }
+};
 
 function startMusic(){
     if (!(pauseText.visible)){
@@ -509,6 +402,7 @@ function startMusic(){
 
 function initBall(){ 
     levelText.text = '' + (level+1); 
+    
     if (ballChosen == 'mr'){
         ball = game.add.sprite(INIT_BALL_X, INIT_BALL_Y, 'ball');
         BALL_GRAV_X = 100;
@@ -521,6 +415,7 @@ function initBall(){
         BALL_GRAV_Y = 130;
         BALL_BOUNCE_Y = 0.77;  
     }
+    
     game.physics.enable(ball, Phaser.Physics.ARCADE);
     ball.enableBody = true;
     ball.body.gravity.y = BALL_GRAV_Y;
@@ -539,10 +434,6 @@ function initBall(){
     }
     
     locateObjects();
-}
-
-function update(){ 
-   
 }
 
 function closeJet(){
