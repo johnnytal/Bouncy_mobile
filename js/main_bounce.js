@@ -20,6 +20,7 @@ var game_main = function(game){
     
     ANG_VELOCITY = 60;
     
+    clickPointY = null;
     gameOn = false;
     KillInProgress = false;
     notHidden = true;
@@ -227,6 +228,8 @@ game_main.prototype = {
                 });
             }
         } catch(e){}
+        
+        SwipeDown_update();
             
         if (!gameOn && game.input.activePointer.isDown){
             goToNextLevel(); 
@@ -296,7 +299,7 @@ game_main.prototype = {
             }
     
             else{
-                 ball.body.gravity.y = BALL_GRAV_Y; 
+              //   ball.body.gravity.y = BALL_GRAV_Y; 
             }
             
             colors.forEach(function(item){
@@ -788,6 +791,27 @@ function createClouds(){
     }
 }
 
+function SwipeDown_update(){
+   var power;
+    
+   if(game.input.activePointer.isDown){
+
+        if (clickPointY == null){ // get initial y point on mouse click
+            clickPointY = game.input.activePointer.y;
+        } 
+
+        else{ 
+            power = clickPointY - game.input.y; 
+            if (power < -20) ball.body.gravity.y = Math.abs(power / 3);
+        }
+    }
+    
+    else if (game.input.activePointer.isUp){ // release arrow on mouse leave   
+        clickPointY = null;
+        ball.body.gravity.y = 150;
+    }  
+}
+
 function endGame(){   
     game.state.start('GameOver', false, false, score); 
 }
@@ -887,11 +911,8 @@ function mcHammer(){
     mc.on("swipedown", function(ev) {
         if(!ev.handled){
             ball.body.angularVelocity *= 0.8;
-            
-            ball.body.gravity.y += 40;
+
             ball.body.gravity.x = 0;
-            
-            ball.body.velocity.y *= 2;
             ball.body.velocity.x /= 2;
             
             if (ball.angle > 2) ball.body.angularVelocity = -ANG_VELOCITY * 1.25;
