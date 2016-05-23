@@ -88,9 +88,8 @@ game_main.prototype = {
         levelText.fixedToCamera = true;
         levelText.anchor.x = 0.5;
         
-        timeBonusText = game.add.text(555, 10, '' + timeBonus, { font: "21px "  + font, fill: "#d66a00"});
+        timeBonusText = game.add.text(535, 10, '' + timeBonus, { font: "21px "  + font, fill: "#d66a00"});
         timeBonusText.fixedToCamera = true;
-        timeBonusText.anchor.x = 0.5;  
         
         jetSecsText = game.add.text(715, 15,''+ jetSeconds, { font: "18px arial", fill: "darkred"});
         jetSecsText.fixedToCamera = true;
@@ -795,15 +794,15 @@ function SwipeDown_update(){
    var power;
     
    if(game.input.activePointer.isDown){
-
-        if (clickPointY == null){ // get initial y point on mouse click
+        ball.body.gravity.y += 5;
+       /* if (clickPointY == null){ // get initial y point on mouse click
             clickPointY = game.input.activePointer.y;
-        } 
+        } */
 
-        else{ 
+       /* else{ 
             power = clickPointY - game.input.y; 
             if (power < -20) ball.body.gravity.y = Math.abs(power / 3);
-        }
+        }*/
     }
     
     else if (game.input.activePointer.isUp){ // release arrow on mouse leave   

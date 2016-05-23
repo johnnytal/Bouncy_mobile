@@ -43,12 +43,12 @@ preloader.prototype = {
         game.load.image('inst', 'images/bouncey/inst.png');
         game.load.image('replay', 'images/bouncey/replay.png');
     
-        game.load.spritesheet('ball', 'images/bouncey/creature.png', 47, 44);
+        game.load.spritesheet('ball', 'images/bouncey/creature.png', 47, 48);
         game.load.spritesheet('miss_ball', 'images/bouncey/miss_creature.png', 47, 44);
         game.load.spritesheet('spring', 'images/bouncey/spring_c.png', 45, 39);
         game.load.spritesheet('splash', 'images/bouncey/splash.png', 314, 137, 6);
         game.load.spritesheet('color3', 'images/bouncey/3.png', 72, 72, 3);
-        game.load.spritesheet('contBtn', 'images/bouncey/continue.png', 45, 46, 2);
+        game.load.spritesheet('contBtn', 'images/bouncey/continue.png', 45, 53, 2);
         game.load.spritesheet('debris', 'images/bouncey/debris.png', 40, 17, 4);
         game.load.spritesheet('debris_b', 'images/bouncey/debris_b.png', 40, 30, 4);
         game.load.spritesheet('debris_p', 'images/bouncey/debris_p.png', 40, 30, 4);
